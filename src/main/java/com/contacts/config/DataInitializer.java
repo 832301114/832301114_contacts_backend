@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
  * 数据初始化器
  * 在应用启动时自动加载示例数据
  * 
+ * 项目：EE308FZ联系人
+ * 团队成员：832301329黎研、832301114孙煦航
+ * 
  * @author Team
  * @version 1.0
  */
@@ -36,87 +39,93 @@ public class DataInitializer implements CommandLineRunner {
      * 创建示例联系人数据
      */
     private void createSampleContacts() {
-        // 联系人1 - 张三（收藏）
-        Contact zhangsan = new Contact("张三");
-        zhangsan.setCompany("阿里巴巴集团");
-        zhangsan.setFavorite(true);
-        zhangsan.setNotes("大学同学，目前在杭州工作");
-        zhangsan.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138001", "工作"));
-        zhangsan.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13900139001", "个人"));
-        zhangsan.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "zhangsan@alibaba.com", "工作"));
-        zhangsan.addContactMethod(new ContactMethod(ContactMethodType.WECHAT, "zhangsan_wx", null));
-        zhangsan.addContactMethod(new ContactMethod(ContactMethodType.ADDRESS, "浙江省杭州市西湖区文三路123号", "公司"));
-        contactRepository.save(zhangsan);
+        // 团队成员1 - 黎研（收藏）
+        Contact liyan = new Contact("黎研");
+        liyan.setCompany("福州市");
+        liyan.setFavorite(true);
+        liyan.setNotes("EE308FZ团队成员，学号：832301329");
+        liyan.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138001", "手机"));
+        liyan.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "832301329@fzu.edu.cn", "学校邮箱"));
+        liyan.addContactMethod(new ContactMethod(ContactMethodType.QQ, "2442093051", null));
+        liyan.addContactMethod(new ContactMethod(ContactMethodType.WECHAT, "liyan_fzu", null));
+        liyan.addContactMethod(new ContactMethod(ContactMethodType.ADDRESS, "福建省福州市闽侯县福州大学", "学校"));
+        contactRepository.save(liyan);
         
-        // 联系人2 - 李四（收藏）
-        Contact lisi = new Contact("李四");
-        lisi.setCompany("腾讯科技");
-        lisi.setFavorite(true);
-        lisi.setNotes("高中同学，经常联系");
-        lisi.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138002", "手机"));
-        lisi.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "lisi@tencent.com", "工作"));
-        lisi.addContactMethod(new ContactMethod(ContactMethodType.QQ, "123456789", null));
-        lisi.addContactMethod(new ContactMethod(ContactMethodType.WECHAT, "lisi2024", null));
-        contactRepository.save(lisi);
+        // 团队成员2 - 孙煦航（收藏）
+        Contact sunxuhang = new Contact("孙煦航");
+        sunxuhang.setCompany("福州市");
+        sunxuhang.setFavorite(true);
+        sunxuhang.setNotes("EE308FZ团队成员，学号：832301114");
+        sunxuhang.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138002", "手机"));
+        sunxuhang.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "832301114@fzu.edu.cn", "学校邮箱"));
+        sunxuhang.addContactMethod(new ContactMethod(ContactMethodType.QQ, "2755325937", null));
+        sunxuhang.addContactMethod(new ContactMethod(ContactMethodType.WECHAT, "sunxuhang_fzu", null));
+        sunxuhang.addContactMethod(new ContactMethod(ContactMethodType.ADDRESS, "福建省福州市闽侯县福州大学", "学校"));
+        contactRepository.save(sunxuhang);
         
-        // 联系人3 - 王五
-        Contact wangwu = new Contact("王五");
-        wangwu.setCompany("华为技术有限公司");
-        wangwu.setFavorite(false);
-        wangwu.setNotes("技术交流群认识的朋友");
-        wangwu.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138003", null));
-        wangwu.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "wangwu@huawei.com", null));
-        wangwu.addContactMethod(new ContactMethod(ContactMethodType.ADDRESS, "广东省深圳市龙岗区坂田街道", null));
-        contactRepository.save(wangwu);
+        // 联系人3 - 张老师（收藏）
+        Contact zhanglaoshi = new Contact("张老师");
+        zhanglaoshi.setCompany("福州市");
+        zhanglaoshi.setFavorite(true);
+        zhanglaoshi.setNotes("软件工程课程指导老师");
+        zhanglaoshi.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "0591-22866001", "办公室"));
+        zhanglaoshi.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "zhanglaoshi@fzu.edu.cn", "工作"));
+        zhanglaoshi.addContactMethod(new ContactMethod(ContactMethodType.ADDRESS, "福建省福州市闽侯县福州大学计算机楼", "办公室"));
+        contactRepository.save(zhanglaoshi);
         
-        // 联系人4 - 赵六
-        Contact zhaoliu = new Contact("赵六");
-        zhaoliu.setCompany("字节跳动");
-        zhaoliu.setFavorite(false);
-        zhaoliu.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138004", null));
-        zhaoliu.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "zhaoliu@bytedance.com", null));
-        zhaoliu.addContactMethod(new ContactMethod(ContactMethodType.WEIBO, "@赵六official", null));
-        contactRepository.save(zhaoliu);
+        // 联系人4 - 王同学
+        Contact wangtongxue = new Contact("王同学");
+        wangtongxue.setCompany("福州市");
+        wangtongxue.setFavorite(false);
+        wangtongxue.setNotes("同班同学");
+        wangtongxue.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13900139001", null));
+        wangtongxue.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "wangtongxue@fzu.edu.cn", null));
+        wangtongxue.addContactMethod(new ContactMethod(ContactMethodType.QQ, "123456789", null));
+        contactRepository.save(wangtongxue);
         
-        // 联系人5 - 孙七（收藏）
-        Contact sunqi = new Contact("孙七");
-        sunqi.setCompany("百度在线");
-        sunqi.setFavorite(true);
-        sunqi.setNotes("项目合作伙伴");
-        sunqi.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138005", "工作"));
-        sunqi.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "010-12345678", "座机"));
-        sunqi.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "sunqi@baidu.com", null));
-        sunqi.addContactMethod(new ContactMethod(ContactMethodType.LINKEDIN, "sunqi-baidu", null));
-        contactRepository.save(sunqi);
+        // 联系人5 - 李经理
+        Contact lijingli = new Contact("李经理");
+        lijingli.setCompany("福州软件园科技公司");
+        lijingli.setFavorite(false);
+        lijingli.setNotes("实习面试联系人");
+        lijingli.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13600136001", "工作"));
+        lijingli.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "0591-88888888", "公司"));
+        lijingli.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "lijingli@fztech.com", null));
+        lijingli.addContactMethod(new ContactMethod(ContactMethodType.ADDRESS, "福建省福州市鼓楼区软件园A区", "公司"));
+        contactRepository.save(lijingli);
         
-        // 联系人6 - 周八
-        Contact zhouba = new Contact("周八");
-        zhouba.setCompany("小米科技");
-        zhouba.setFavorite(false);
-        zhouba.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138006", null));
-        zhouba.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "zhouba@xiaomi.com", null));
-        zhouba.addContactMethod(new ContactMethod(ContactMethodType.QQ, "987654321", null));
-        contactRepository.save(zhouba);
+        // 联系人6 - 陈师兄
+        Contact chenshixiong = new Contact("陈师兄");
+        chenshixiong.setCompany("阿里巴巴");
+        chenshixiong.setFavorite(false);
+        chenshixiong.setNotes("学长，已毕业在杭州工作");
+        chenshixiong.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13700137001", null));
+        chenshixiong.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "chenshixiong@alibaba.com", null));
+        chenshixiong.addContactMethod(new ContactMethod(ContactMethodType.WECHAT, "chen_alibaba", null));
+        contactRepository.save(chenshixiong);
         
-        // 联系人7 - 吴九
-        Contact wujiu = new Contact("吴九");
-        wujiu.setCompany("京东集团");
-        wujiu.setFavorite(false);
-        wujiu.setNotes("电商行业交流");
-        wujiu.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138007", null));
-        wujiu.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "wujiu@jd.com", null));
-        wujiu.addContactMethod(new ContactMethod(ContactMethodType.ADDRESS, "北京市亦庄经济开发区", null));
-        contactRepository.save(wujiu);
+        // 联系人7 - 刘同学
+        Contact liutongxue = new Contact("刘同学");
+        liutongxue.setCompany("福州大学");
+        liutongxue.setFavorite(false);
+        liutongxue.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13500135001", null));
+        liutongxue.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "liutongxue@fzu.edu.cn", null));
+        liutongxue.addContactMethod(new ContactMethod(ContactMethodType.QQ, "987654321", null));
+        contactRepository.save(liutongxue);
         
-        // 联系人8 - 郑十
-        Contact zhengshi = new Contact("郑十");
-        zhengshi.setCompany("网易公司");
-        zhengshi.setFavorite(false);
-        zhengshi.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13800138008", null));
-        zhengshi.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "zhengshi@netease.com", null));
-        zhengshi.addContactMethod(new ContactMethod(ContactMethodType.WECHAT, "zhengshi_163", null));
-        contactRepository.save(zhengshi);
+        // 联系人8 - 赵助教
+        Contact zhaozhujiao = new Contact("赵助教");
+        zhaozhujiao.setCompany("福州市");
+        zhaozhujiao.setFavorite(false);
+        zhaozhujiao.setNotes("课程助教");
+        zhaozhujiao.addContactMethod(new ContactMethod(ContactMethodType.PHONE, "13400134001", null));
+        zhaozhujiao.addContactMethod(new ContactMethod(ContactMethodType.EMAIL, "zhaozhujiao@fzu.edu.cn", null));
+        contactRepository.save(zhaozhujiao);
         
-        System.out.println("✅ 示例数据初始化完成，共创建 8 个联系人");
+        System.out.println("========================================");
+        System.out.println("  EE308FZ联系人 - 示例数据初始化完成");
+        System.out.println("  团队成员：832301329黎研、832301114孙煦航");
+        System.out.println("  共创建 8 个联系人");
+        System.out.println("========================================");
     }
 }

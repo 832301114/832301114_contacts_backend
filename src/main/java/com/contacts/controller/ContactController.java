@@ -26,6 +26,9 @@ import java.util.List;
  * 处理所有与联系人相关的HTTP请求
  * 包括：列表展示、新增、编辑、删除、收藏、搜索、导入导出等功能
  * 
+ * 项目：EE308FZ联系人
+ * 团队成员：832301329黎研、832301114孙煦航
+ * 
  * @author Team
  * @version 1.0
  */
@@ -54,13 +57,10 @@ public class ContactController {
         List<Contact> contacts;
         
         if (Boolean.TRUE.equals(favoritesOnly)) {
-            // 只显示收藏的联系人
             contacts = contactService.getFavoriteContacts();
         } else if (keyword != null && !keyword.trim().isEmpty()) {
-            // 搜索联系人
             contacts = contactService.searchContacts(keyword);
         } else {
-            // 显示所有联系人
             contacts = contactService.getAllContacts();
         }
         
@@ -91,7 +91,6 @@ public class ContactController {
      * @param id 联系人ID
      * @param model 视图模型
      * @return 联系人表单视图名称
-     * @throws RuntimeException 如果联系人不存在
      */
     @GetMapping("/contact/edit/{id}")
     public String editContactForm(@PathVariable Long id, Model model) {
@@ -121,7 +120,6 @@ public class ContactController {
                               @RequestParam(value = "methodLabels", required = false) List<String> methodLabels,
                               RedirectAttributes redirectAttributes) {
         
-        // 构建联系方式列表
         List<ContactMethod> methods = new ArrayList<>();
         if (methodTypes != null && methodValues != null) {
             for (int i = 0; i < methodTypes.size(); i++) {
@@ -135,12 +133,10 @@ public class ContactController {
         }
         
         if (contact.getId() == null) {
-            // 新建联系人
             Contact savedContact = contactService.createContact(contact);
             contactService.saveContactWithMethods(savedContact, methods);
-            redirectAttributes.addFlashAttribute("message", "联系人创建成功！");
+            redirectAttributes.addFlashAttribute("message", "联系人 \"" + contact.getName() + "\" 创建成功！");
         } else {
-            // 更新联系人
             Contact existingContact = contactService.getContactById(contact.getId())
                 .orElseThrow(() -> new RuntimeException("联系人不存在"));
             existingContact.setName(contact.getName());
@@ -148,7 +144,7 @@ public class ContactController {
             existingContact.setNotes(contact.getNotes());
             existingContact.setFavorite(contact.getFavorite());
             contactService.saveContactWithMethods(existingContact, methods);
-            redirectAttributes.addFlashAttribute("message", "联系人更新成功！");
+            redirectAttributes.addFlashAttribute("message", "联系人 \"" + contact.getName() + "\" 更新成功！");
         }
         
         return "redirect:/";
@@ -164,7 +160,9 @@ public class ContactController {
     @PostMapping("/contact/favorite/{id}")
     public String toggleFavorite(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         Contact contact = contactService.toggleFavorite(id);
-        String message = contact.getFavorite() ? "已添加到收藏" : "已取消收藏";
+        String message = contact.getFavorite() ? 
+            "已将 \"" + contact.getName() + "\" 添加到收藏" : 
+            "已将 \"" + contact.getName() + "\" 取消收藏";
         redirectAttributes.addFlashAttribute("message", message);
         return "redirect:/";
     }
@@ -178,8 +176,10 @@ public class ContactController {
      */
     @PostMapping("/contact/delete/{id}")
     public String deleteContact(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Contact contact = contactService.getContactById(id).orElse(null);
+        String name = contact != null ? contact.getName() : "联系人";
         contactService.deleteContact(id);
-        redirectAttributes.addFlashAttribute("message", "联系人已删除");
+        redirectAttributes.addFlashAttribute("message", "联系人 \"" + name + "\" 已删除");
         return "redirect:/";
     }
     
@@ -199,6 +199,24 @@ public class ContactController {
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + filename)
             .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
             .body(excelData);
+    }
+    
+    /**
+     * 下载Excel导入模板
+     * 
+     * @return Excel模板文件响应
+     * @throws IOException 如果生成失败
+     */
+    @GetMapping("/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws IOException {
+        byte[] templateData = excelService.generateTemplate();
+        
+        String filename = URLEncoder.encode("联系人导入模板.xlsx", StandardCharsets.UTF_8.toString());
+        
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + filename)
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            .body(templateData);
     }
     
     /**
@@ -227,7 +245,7 @@ public class ContactController {
         
         try {
             List<Contact> imported = excelService.importFromExcel(file);
-            redirectAttributes.addFlashAttribute("message", "成功导入 " + imported.size() + " 个联系人");
+            redirectAttributes.addFlashAttribute("message", "成功导入 " + imported.size() + " 个联系人！");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "导入失败: " + e.getMessage());
             return "redirect:/import";
@@ -242,7 +260,6 @@ public class ContactController {
      * @param id 联系人ID
      * @param model 视图模型
      * @return 联系人详情视图名称
-     * @throws RuntimeException 如果联系人不存在
      */
     @GetMapping("/contact/{id}")
     public String viewContact(@PathVariable Long id, Model model) {
