@@ -1,104 +1,178 @@
 package com.contacts.controller;
 
 import com.contacts.entity.Contact;
+import com.contacts.entity.ContactMethod;
+import com.contacts.entity.ContactMethodType;
 import com.contacts.service.ContactService;
+import com.contacts.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
-import java.util.HashMap;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-@RestController
-@RequestMapping("/api/contacts")
-@CrossOrigin(origins = "http://localhost:8080") // 允许前端访问
+@Controller
 public class ContactController {
     
     @Autowired
     private ContactService contactService;
     
-    @GetMapping
-    public ResponseEntity<List<Contact>> getAllContacts() {
-        try {
-            List<Contact> contacts = contactService.getAllContacts();
-            return new ResponseEntity<>(contacts, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    @Autowired
+    private ExcelService excelService;
     
-    @GetMapping("/{id}")
-    public ResponseEntity<Contact> getContactById(@PathVariable Long id) {
-        Optional<Contact> contact = contactService.getContactById(id);
+    // 首页 - 联系人列表
+    @GetMapping("/")
+    public String index(Model model, @RequestParam(required = false) String keyword,
+                        @RequestParam(required = false) Boolean favoritesOnly) {
+        List<Contact> contacts;
         
-        if (contact.isPresent()) {
-            return new ResponseEntity<>(contact.get(), HttpStatus.OK);
+        if (Boolean.TRUE.equals(favoritesOnly)) {
+            contacts = contactService.getFavoriteContacts();
+        } else if (keyword != null && !keyword.trim().isEmpty()) {
+            contacts = contactService.searchContacts(keyword);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            contacts = contactService.getAllContacts();
         }
+        
+        model.addAttribute("contacts", contacts);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("favoritesOnly", favoritesOnly);
+        model.addAttribute("contactMethodTypes", ContactMethodType.values());
+        return "index";
     }
     
-    @PostMapping
-    public ResponseEntity<?> createContact(@Valid @RequestBody Contact contact) {
-        try {
+    // 新建联系人页面
+    @GetMapping("/contact/new")
+    public String newContactForm(Model model) {
+        model.addAttribute("contact", new Contact());
+        model.addAttribute("contactMethodTypes", ContactMethodType.values());
+        model.addAttribute("isNew", true);
+        return "contact-form";
+    }
+    
+    // 编辑联系人页面
+    @GetMapping("/contact/edit/{id}")
+    public String editContactForm(@PathVariable Long id, Model model) {
+        Contact contact = contactService.getContactById(id)
+            .orElseThrow(() -> new RuntimeException("联系人不存在"));
+        
+        model.addAttribute("contact", contact);
+        model.addAttribute("contactMethodTypes", ContactMethodType.values());
+        model.addAttribute("isNew", false);
+        return "contact-form";
+    }
+    
+    // 保存联系人
+    @PostMapping("/contact/save")
+    public String saveContact(@ModelAttribute Contact contact,
+                              @RequestParam(value = "methodTypes", required = false) List<String> methodTypes,
+                              @RequestParam(value = "methodValues", required = false) List<String> methodValues,
+                              @RequestParam(value = "methodLabels", required = false) List<String> methodLabels,
+                              RedirectAttributes redirectAttributes) {
+        
+        List<ContactMethod> methods = new ArrayList<>();
+        if (methodTypes != null && methodValues != null) {
+            for (int i = 0; i < methodTypes.size(); i++) {
+                String value = methodValues.get(i);
+                if (value != null && !value.trim().isEmpty()) {
+                    ContactMethodType type = ContactMethodType.valueOf(methodTypes.get(i));
+                    String label = (methodLabels != null && i < methodLabels.size()) ? methodLabels.get(i) : null;
+                    methods.add(new ContactMethod(type, value.trim(), label));
+                }
+            }
+        }
+        
+        if (contact.getId() == null) {
+            // 新建
             Contact savedContact = contactService.createContact(contact);
-            return new ResponseEntity<>(savedContact, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            contactService.saveContactWithMethods(savedContact, methods);
+            redirectAttributes.addFlashAttribute("message", "联系人创建成功！");
+        } else {
+            // 更新
+            Contact existingContact = contactService.getContactById(contact.getId())
+                .orElseThrow(() -> new RuntimeException("联系人不存在"));
+            existingContact.setName(contact.getName());
+            existingContact.setCompany(contact.getCompany());
+            existingContact.setNotes(contact.getNotes());
+            existingContact.setFavorite(contact.getFavorite());
+            contactService.saveContactWithMethods(existingContact, methods);
+            redirectAttributes.addFlashAttribute("message", "联系人更新成功！");
         }
+        
+        return "redirect:/";
     }
     
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateContact(@PathVariable Long id, @Valid @RequestBody Contact contactDetails) {
-        try {
-            Contact updatedContact = contactService.updateContact(id, contactDetails);
-            return new ResponseEntity<>(updatedContact, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    // 切换收藏状态
+    @PostMapping("/contact/favorite/{id}")
+    public String toggleFavorite(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Contact contact = contactService.toggleFavorite(id);
+        String message = contact.getFavorite() ? "已添加到收藏" : "已取消收藏";
+        redirectAttributes.addFlashAttribute("message", message);
+        return "redirect:/";
     }
     
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteContact(@PathVariable Long id) {
-        try {
-            contactService.deleteContact(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    // 删除联系人
+    @PostMapping("/contact/delete/{id}")
+    public String deleteContact(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        contactService.deleteContact(id);
+        redirectAttributes.addFlashAttribute("message", "联系人已删除");
+        return "redirect:/";
     }
     
-    @GetMapping("/search")
-    public ResponseEntity<List<Contact>> searchContacts(@RequestParam String keyword) {
-        try {
-            List<Contact> contacts = contactService.searchContacts(keyword);
-            return new ResponseEntity<>(contacts, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    // 导出Excel
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportExcel() throws IOException {
+        byte[] excelData = excelService.exportToExcel();
+        
+        String filename = URLEncoder.encode("通讯录.xlsx", StandardCharsets.UTF_8.toString());
+        
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + filename)
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            .body(excelData);
     }
     
-    @GetMapping("/name/{name}")
-    public ResponseEntity<List<Contact>> getContactsByName(@PathVariable String name) {
-        try {
-            List<Contact> contacts = contactService.getContactsByName(name);
-            return new ResponseEntity<>(contacts, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    // 导入Excel页面
+    @GetMapping("/import")
+    public String importPage() {
+        return "import";
+    }
+    
+    // 处理导入
+    @PostMapping("/import")
+    public String importExcel(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "请选择要导入的文件");
+            return "redirect:/import";
         }
+        
+        try {
+            List<Contact> imported = excelService.importFromExcel(file);
+            redirectAttributes.addFlashAttribute("message", "成功导入 " + imported.size() + " 个联系人");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "导入失败: " + e.getMessage());
+        }
+        
+        return "redirect:/";
+    }
+    
+    // 查看联系人详情
+    @GetMapping("/contact/{id}")
+    public String viewContact(@PathVariable Long id, Model model) {
+        Contact contact = contactService.getContactById(id)
+            .orElseThrow(() -> new RuntimeException("联系人不存在"));
+        
+        model.addAttribute("contact", contact);
+        return "contact-detail";
     }
 }
