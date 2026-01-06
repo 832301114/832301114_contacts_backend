@@ -47,6 +47,6 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     @Query("SELECT DISTINCT c FROM Contact c LEFT JOIN c.contactMethods m " +
            "WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
            "OR LOWER(c.company) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "OR LOWER(m.value) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+           "OR LOWER(m.methodValue) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Contact> searchContacts(@Param("keyword") String keyword);
 }

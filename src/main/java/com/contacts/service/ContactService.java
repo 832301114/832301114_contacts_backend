@@ -165,7 +165,7 @@ public class ContactService {
         
         // 添加新的联系方式
         for (ContactMethod method : methods) {
-            if (method.getValue() != null && !method.getValue().trim().isEmpty()) {
+            if (method.getMethodValue() != null && !method.getMethodValue().trim().isEmpty()) {
                 contact.addContactMethod(method);
             }
         }

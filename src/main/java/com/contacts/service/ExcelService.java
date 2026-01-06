@@ -229,7 +229,7 @@ public class ExcelService {
         for (ContactMethod method : contact.getContactMethods()) {
             if (method.getType() == type) {
                 if (sb.length() > 0) sb.append("; ");
-                sb.append(method.getValue());
+                sb.append(method.getMethodValue());
             }
         }
         return sb.toString();

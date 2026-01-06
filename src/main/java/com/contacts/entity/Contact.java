@@ -14,10 +14,7 @@ import java.util.List;
  * @version 1.0
  */
 @Entity
-@Table(name = "contacts", indexes = {
-    @Index(name = "idx_contact_name", columnList = "name"),
-    @Index(name = "idx_contact_favorite", columnList = "is_favorite")
-})
+@Table(name = "contacts")
 public class Contact {
     
     /**
@@ -25,45 +22,44 @@ public class Contact {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "BIGINT COMMENT '联系人ID'")
     private Long id;
     
     /**
      * 联系人姓名，必填字段
      */
     @NotBlank(message = "姓名不能为空")
-    @Column(name = "name", nullable = false, length = 100, columnDefinition = "VARCHAR(100) COMMENT '联系人姓名'")
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
     
     /**
      * 是否收藏标记
      * true: 已收藏，false: 未收藏
      */
-    @Column(name = "is_favorite", columnDefinition = "BOOLEAN DEFAULT FALSE COMMENT '是否收藏'")
+    @Column(name = "is_favorite")
     private Boolean favorite = false;
     
     /**
      * 联系人所属公司
      */
-    @Column(name = "company", length = 200, columnDefinition = "VARCHAR(200) COMMENT '公司名称'")
+    @Column(name = "company", length = 200)
     private String company;
     
     /**
      * 备注信息
      */
-    @Column(name = "notes", length = 500, columnDefinition = "VARCHAR(500) COMMENT '备注'")
+    @Column(name = "notes", length = 500)
     private String notes;
     
     /**
      * 创建时间，记录联系人添加时间
      */
-    @Column(name = "created_time", columnDefinition = "TIMESTAMP COMMENT '创建时间'")
+    @Column(name = "created_time")
     private LocalDateTime createdTime;
     
     /**
      * 更新时间，记录最后修改时间
      */
-    @Column(name = "updated_time", columnDefinition = "TIMESTAMP COMMENT '更新时间'")
+    @Column(name = "updated_time")
     private LocalDateTime updatedTime;
     
     /**
@@ -159,7 +155,7 @@ public class Contact {
         return contactMethods.stream()
             .filter(m -> m.getType() == ContactMethodType.PHONE)
             .findFirst()
-            .map(ContactMethod::getValue)
+            .map(ContactMethod::getMethodValue)
             .orElse("");
     }
     
@@ -171,7 +167,7 @@ public class Contact {
         return contactMethods.stream()
             .filter(m -> m.getType() == ContactMethodType.EMAIL)
             .findFirst()
-            .map(ContactMethod::getValue)
+            .map(ContactMethod::getMethodValue)
             .orElse("");
     }
     
@@ -183,7 +179,7 @@ public class Contact {
         return contactMethods.stream()
             .filter(m -> m.getType() == ContactMethodType.ADDRESS)
             .findFirst()
-            .map(ContactMethod::getValue)
+            .map(ContactMethod::getMethodValue)
             .orElse("");
     }
     

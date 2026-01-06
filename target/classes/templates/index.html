@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通讯录管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            background: var(--bg-color);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .page-header h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+        }
+        
+        .page-header p {
+            opacity: 0.9;
+            margin: 0.5rem 0 0;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .btn-modern {
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+            color: white;
+        }
+        
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+        
+        .btn-success-modern {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-success-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+        
+        .btn-outline-modern {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-outline-modern:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .btn-warning-modern {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .btn-info-modern {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+        }
+        
+        .contact-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), #8b5cf6);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .contact-card:hover::before {
+            opacity: 1;
+        }
+        
+        .contact-card.is-favorite::before {
+            background: linear-gradient(90deg, var(--warning-color), #fbbf24);
+            opacity: 1;
+        }
+        
+        .contact-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .contact-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .contact-name:hover {
+            color: var(--primary-color);
+        }
+        
+        .contact-company {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .contact-info i {
+            color: var(--primary-color);
+        }
+        
+        .favorite-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            background: #fef3c7;
+            color: var(--warning-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .favorite-btn.active {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .action-btn-edit {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .action-btn-edit:hover {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .action-btn-delete {
+            background: #fee2e2;
+            color: var(--danger-color);
+        }
+        
+        .action-btn-delete:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: none;
+            background: white;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .filter-tab:hover, .filter-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stats-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+        }
+        
+        .alert-modern {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.25rem;
+        }
+        
+        .toolbar-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+            
+            .toolbar-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1><i class="bi bi-person-lines-fill me-2"></i>通讯录管理系统</h1>
+                <p>轻松管理您的所有联系人</p>
+            </div>
+            <div class="toolbar-actions">
+                <a th:href="@{/contact/new}" class="btn btn-modern btn-success-modern">
+                    <i class="bi bi-plus-lg me-1"></i> 新建联系人
+                </a>
+                <a th:href="@{/export}" class="btn btn-modern btn-info-modern">
+                    <i class="bi bi-download me-1"></i> 导出Excel
+                </a>
+                <a th:href="@{/import}" class="btn btn-modern btn-outline-modern" style="background: white;">
+                    <i class="bi bi-upload me-1"></i> 导入
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提示消息 -->
+    <div th:if="${message}" class="alert alert-success alert-modern alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-modern alert-dismissible fade show">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    
+    <!-- 搜索和筛选 -->
+    <div class="search-box">
+        <div class="row align-items-center g-3">
+            <div class="col-md-6">
+                <form th:action="@{/}" method="get" class="d-flex gap-2">
+                    <input type="text" name="keyword" class="form-control search-input" 
+                           placeholder="搜索联系人姓名、公司、电话..." th:value="${keyword}">
+                    <button type="submit" class="btn btn-modern btn-primary-modern">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <div class="filter-tabs justify-content-md-end d-flex">
+                    <a th:href="@{/}" class="filter-tab" th:classappend="${favoritesOnly == null && keyword == null} ? 'active' : ''">
+                        <i class="bi bi-grid me-1"></i> 全部
+                    </a>
+                    <a th:href="@{/(favoritesOnly=true)}" class="filter-tab" th:classappend="${favoritesOnly} ? 'active' : ''">
+                        <i class="bi bi-star-fill me-1"></i> 收藏
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 联系人列表 -->
+    <div class="row">
+        <div th:each="contact : ${contacts}" class="col-lg-6 col-xl-4">
+            <div class="contact-card" th:classappend="${contact.favorite} ? 'is-favorite' : ''">
+                <div class="d-flex gap-3">
+                    <div class="contact-avatar" th:text="${#strings.substring(contact.name, 0, 1)}">张</div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <a th:href="@{/contact/{id}(id=${contact.id})}" class="contact-name" th:text="${contact.name}">张三</a>
+                                <div class="contact-company" th:if="${contact.company}" th:text="${contact.company}">某公司</div>
+                            </div>
+                            <form th:action="@{/contact/favorite/{id}(id=${contact.id})}" method="post" class="d-inline">
+                                <button type="submit" class="favorite-btn" th:classappend="${contact.favorite} ? 'active' : ''">
+                                    <i class="bi" th:classappend="${contact.favorite} ? 'bi-star-fill' : 'bi-star'"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="contact-info" th:if="${contact.primaryPhone}">
+                            <i class="bi bi-telephone"></i>
+                            <span th:text="${contact.primaryPhone}">13800138000</span>
+                        </div>
+                        <div class="contact-info" th:if="${contact.primaryEmail}">
+                            <i class="bi bi-envelope"></i>
+                            <span th:text="${contact.primaryEmail}">email@example.com</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
+                    <a th:href="@{/contact/{id}(id=${contact.id})}" class="action-btn action-btn-edit" title="查看详情">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a th:href="@{/contact/edit/{id}(id=${contact.id})}" class="action-btn action-btn-edit" title="编辑">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <form th:action="@{/contact/delete/{id}(id=${contact.id})}" method="post" class="d-inline" 
+                          onsubmit="return confirm('确定要删除这个联系人吗？')">
+                        <button type="submit" class="action-btn action-btn-delete" title="删除">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 空状态 -->
+    <div th:if="${#lists.isEmpty(contacts)}" class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h4>暂无联系人</h4>
+        <p>点击"新建联系人"按钮添加您的第一个联系人</p>
+        <a th:href="@{/contact/new}" class="btn btn-modern btn-primary-modern mt-3">
+            <i class="bi bi-plus-lg me-1"></i> 新建联系人
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

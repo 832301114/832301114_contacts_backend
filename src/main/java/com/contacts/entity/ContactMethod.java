@@ -12,10 +12,7 @@ import javax.validation.constraints.NotBlank;
  * @version 1.0
  */
 @Entity
-@Table(name = "contact_methods", indexes = {
-    @Index(name = "idx_method_contact", columnList = "contact_id"),
-    @Index(name = "idx_method_type", columnList = "type")
-})
+@Table(name = "contact_methods")
 public class ContactMethod {
     
     /**
@@ -23,7 +20,6 @@ public class ContactMethod {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "BIGINT COMMENT '联系方式ID'")
     private Long id;
     
     /**
@@ -31,7 +27,7 @@ public class ContactMethod {
      * 如：PHONE(电话)、EMAIL(邮箱)、WECHAT(微信)等
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 20, columnDefinition = "VARCHAR(20) COMMENT '联系方式类型'")
+    @Column(name = "type", nullable = false, length = 20)
     private ContactMethodType type;
     
     /**
@@ -39,14 +35,14 @@ public class ContactMethod {
      * 如：具体的电话号码、邮箱地址等
      */
     @NotBlank(message = "联系方式值不能为空")
-    @Column(name = "value", nullable = false, length = 200, columnDefinition = "VARCHAR(200) COMMENT '联系方式值'")
-    private String value;
+    @Column(name = "method_value", nullable = false, length = 200)
+    private String methodValue;
     
     /**
      * 联系方式标签
      * 用于区分同类型的不同联系方式，如：工作、家庭、个人等
      */
-    @Column(name = "label", length = 50, columnDefinition = "VARCHAR(50) COMMENT '标签(如工作、家庭)'")
+    @Column(name = "label", length = 50)
     private String label;
     
     /**
@@ -54,7 +50,7 @@ public class ContactMethod {
      * 多对一关系，多个联系方式属于一个联系人
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contact_id", columnDefinition = "BIGINT COMMENT '所属联系人ID'")
+    @JoinColumn(name = "contact_id")
     private Contact contact;
     
     /**
@@ -65,22 +61,22 @@ public class ContactMethod {
     /**
      * 带类型和值的构造函数
      * @param type 联系方式类型
-     * @param value 联系方式值
+     * @param methodValue 联系方式值
      */
-    public ContactMethod(ContactMethodType type, String value) {
+    public ContactMethod(ContactMethodType type, String methodValue) {
         this.type = type;
-        this.value = value;
+        this.methodValue = methodValue;
     }
     
     /**
      * 完整构造函数
      * @param type 联系方式类型
-     * @param value 联系方式值
+     * @param methodValue 联系方式值
      * @param label 标签
      */
-    public ContactMethod(ContactMethodType type, String value, String label) {
+    public ContactMethod(ContactMethodType type, String methodValue, String label) {
         this.type = type;
-        this.value = value;
+        this.methodValue = methodValue;
         this.label = label;
     }
     
@@ -92,8 +88,8 @@ public class ContactMethod {
     public ContactMethodType getType() { return type; }
     public void setType(ContactMethodType type) { this.type = type; }
     
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
+    public String getMethodValue() { return methodValue; }
+    public void setMethodValue(String methodValue) { this.methodValue = methodValue; }
     
     public String getLabel() { return label; }
     public void setLabel(String label) { this.label = label; }
@@ -114,7 +110,7 @@ public class ContactMethod {
         return "ContactMethod{" +
                 "id=" + id +
                 ", type=" + type +
-                ", value='" + value + '\'' +
+                ", methodValue='" + methodValue + '\'' +
                 ", label='" + label + '\'' +
                 '}';
     }

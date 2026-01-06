@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isNew} ? '新建联系人' : '编辑联系人'">联系人表单</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        
+        body {
+            background: var(--bg-color);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .page-header h2 {
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-card-title i {
+            color: var(--primary-color);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid var(--border-color);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+        
+        .btn-modern {
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+            color: white;
+        }
+        
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+        
+        .btn-secondary-modern {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary-modern:hover {
+            background: #cbd5e1;
+        }
+        
+        .btn-success-modern {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-danger-modern {
+            background: #fee2e2;
+            color: var(--danger-color);
+            border: none;
+        }
+        
+        .btn-danger-modern:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .contact-method-row {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .contact-method-row:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .add-method-btn {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            width: 100%;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-method-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .favorite-check {
+            background: #fef3c7;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .form-card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <div class="page-header">
+        <a th:href="@{/}" class="text-white text-decoration-none d-inline-flex align-items-center mb-3">
+            <i class="bi bi-arrow-left me-2"></i> 返回列表
+        </a>
+        <h2>
+            <i class="bi" th:classappend="${isNew} ? 'bi-person-plus' : 'bi-pencil-square'"></i>
+            <span th:text="${isNew} ? '新建联系人' : '编辑联系人'"></span>
+        </h2>
+    </div>
+    
+    <form th:action="@{/contact/save}" method="post">
+        <input type="hidden" th:field="*{contact.id}">
+        
+        <!-- 基本信息 -->
+        <div class="form-card">
+            <div class="form-card-title">
+                <i class="bi bi-person"></i> 基本信息
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{contact.name}" required placeholder="请输入姓名">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">公司</label>
+                    <input type="text" class="form-control" th:field="*{contact.company}" placeholder="请输入公司名称">
+                </div>
+                <div class="col-12">
+                    <div class="favorite-check">
+                        <input type="checkbox" class="form-check-input" th:field="*{contact.favorite}" id="favorite">
+                        <label class="form-check-label" for="favorite">
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <strong>收藏此联系人</strong>
+                            <span class="text-muted ms-2">收藏的联系人将优先显示</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-control" th:field="*{contact.notes}" rows="3" placeholder="添加备注信息..."></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 联系方式 -->
+        <div class="form-card">
+            <div class="form-card-title">
+                <i class="bi bi-telephone"></i> 联系方式
+                <span class="badge bg-primary ms-auto" id="methodCount">0</span>
+            </div>
+            
+            <div id="contactMethodsContainer">
+                <!-- 已有的联系方式 -->
+                <div th:each="method, stat : ${contact.contactMethods}" class="contact-method-row">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-3">
+                            <select class="form-select" name="methodTypes">
+                                <option th:each="type : ${contactMethodTypes}" 
+                                        th:value="${type}" 
+                                        th:text="${type.displayName}"
+                                        th:selected="${method.type == type}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="methodValues" th:value="${method.methodValue}" placeholder="联系方式">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="methodLabels" th:value="${method.label}" placeholder="标签 (如: 工作)">
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button type="button" class="btn btn-danger-modern" onclick="removeContactMethod(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 新建时默认添加一行 -->
+                <div th:if="${isNew}" class="contact-method-row">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-3">
+                            <select class="form-select" name="methodTypes">
+                                <option th:each="type : ${contactMethodTypes}" th:value="${type}" th:text="${type.displayName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="methodValues" placeholder="联系方式">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="methodLabels" placeholder="标签 (如: 工作)">
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button type="button" class="btn btn-danger-modern" onclick="removeContactMethod(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" class="add-method-btn mt-3" onclick="addContactMethod()">
+                <i class="bi bi-plus-lg me-2"></i> 添加联系方式
+            </button>
+        </div>
+        
+        <!-- 提交按钮 -->
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-modern btn-primary-modern flex-grow-1">
+                <i class="bi bi-check-lg me-2"></i> 保存联系人
+            </button>
+            <a th:href="@{/}" class="btn btn-modern btn-secondary-modern">
+                <i class="bi bi-x-lg me-1"></i> 取消
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    var types = ['PHONE', 'EMAIL', 'ADDRESS', 'WECHAT', 'QQ', 'WEIBO', 'TWITTER', 'FACEBOOK', 'LINKEDIN', 'OTHER'];
+    var names = ['电话', '邮箱', '地址', '微信', 'QQ', '微博', 'Twitter', 'Facebook', 'LinkedIn', '其他'];
+    
+    function updateMethodCount() {
+        var count = document.querySelectorAll('.contact-method-row').length;
+        document.getElementById('methodCount').textContent = count;
+    }
+    
+    function addContactMethod() {
+        var container = document.getElementById('contactMethodsContainer');
+        var row = document.createElement('div');
+        row.className = 'contact-method-row';
+        
+        var options = '';
+        for (var i = 0; i < types.length; i++) {
+            options += '<option value="' + types[i] + '">' + names[i] + '</option>';
+        }
+        
+        row.innerHTML = `
+            <div class="row g-2 align-items-center">
+                <div class="col-md-3">
+                    <select class="form-select" name="methodTypes">${options}</select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="methodValues" placeholder="联系方式">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="methodLabels" placeholder="标签 (如: 工作)">
+                </div>
+                <div class="col-md-2 text-end">
+                    <button type="button" class="btn btn-danger-modern" onclick="removeContactMethod(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+        updateMethodCount();
+    }
+    
+    function removeContactMethod(btn) {
+        btn.closest('.contact-method-row').remove();
+        updateMethodCount();
+    }
+    
+    updateMethodCount();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
