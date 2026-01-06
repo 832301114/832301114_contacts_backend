@@ -6,83 +6,328 @@
     <title th:text="'联系人 - ' + ${contact.name}">联系人详情</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        
+        body {
+            background: var(--bg-color);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .detail-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+            border-radius: 24px;
+            padding: 2.5rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .profile-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-company {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .favorite-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card-title i {
+            color: var(--primary-color);
+        }
+        
+        .contact-method-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-method-item:hover {
+            background: #f1f5f9;
+        }
+        
+        .method-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .method-icon.phone { background: #dcfce7; color: #16a34a; }
+        .method-icon.email { background: #dbeafe; color: #2563eb; }
+        .method-icon.address { background: #fef3c7; color: #d97706; }
+        .method-icon.wechat { background: #d1fae5; color: #059669; }
+        .method-icon.qq { background: #e0e7ff; color: #4f46e5; }
+        .method-icon.social { background: #fce7f3; color: #db2777; }
+        
+        .method-content {
+            flex-grow: 1;
+        }
+        
+        .method-type {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .method-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .method-label {
+            font-size: 0.75rem;
+            background: var(--border-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            color: var(--text-secondary);
+        }
+        
+        .notes-content {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .meta-info {
+            display: flex;
+            gap: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-modern {
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            flex: 1;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+            color: white;
+        }
+        
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+        
+        .btn-danger-modern {
+            background: #fee2e2;
+            color: var(--danger-color);
+        }
+        
+        .btn-danger-modern:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .profile-header { padding: 2rem 1.5rem; }
+            .action-buttons { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">
-                        <i class="bi bi-person-circle"></i>
-                        <span th:text="${contact.name}"></span>
-                        <i th:if="${contact.favorite}" class="bi bi-star-fill text-warning"></i>
-                    </h4>
-                    <div>
-                        <a th:href="@{/contact/edit/{id}(id=${contact.id})}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-pencil"></i> 编辑
-                        </a>
-                        <a th:href="@{/}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-arrow-left"></i> 返回
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- 基本信息 -->
-                    <div class="mb-4">
-                        <h5 class="border-bottom pb-2">基本信息</h5>
-                        <div class="row">
-                            <div class="col-md-6" th:if="${contact.company}">
-                                <p><strong>公司：</strong><span th:text="${contact.company}"></span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>收藏：</strong>
-                                    <span th:if="${contact.favorite}" class="badge bg-warning">已收藏</span>
-                                    <span th:unless="${contact.favorite}" class="badge bg-secondary">未收藏</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div th:if="${contact.notes}">
-                            <p><strong>备注：</strong><span th:text="${contact.notes}"></span></p>
-                        </div>
-                    </div>
-                    
-                    <!-- 联系方式 -->
-                    <div class="mb-4">
-                        <h5 class="border-bottom pb-2">联系方式</h5>
-                        <div th:if="${#lists.isEmpty(contact.contactMethods)}" class="text-muted">
-                            暂无联系方式
-                        </div>
-                        <table th:unless="${#lists.isEmpty(contact.contactMethods)}" class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>类型</th>
-                                    <th>值</th>
-                                    <th>标签</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="method : ${contact.contactMethods}">
-                                    <td>
-                                        <span class="badge bg-info" th:text="${method.typeDisplayName}"></span>
-                                    </td>
-                                    <td th:text="${method.value}"></td>
-                                    <td th:text="${method.label ?: '-'}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- 时间信息 -->
-                    <div class="text-muted small">
-                        <p class="mb-1">创建时间：<span th:text="${#temporals.format(contact.createdTime, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
-                        <p class="mb-0">更新时间：<span th:text="${#temporals.format(contact.updatedTime, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
-                    </div>
-                </div>
+<div class="detail-container">
+    <a th:href="@{/}" class="back-link">
+        <i class="bi bi-arrow-left"></i> 返回联系人列表
+    </a>
+    
+    <!-- 个人资料头部 -->
+    <div class="profile-header">
+        <div class="profile-avatar" th:text="${#strings.substring(contact.name, 0, 1)}">张</div>
+        <div class="profile-name" th:text="${contact.name}">张三</div>
+        <div class="profile-company" th:if="${contact.company}" th:text="${contact.company}">某公司</div>
+        <div th:if="${contact.favorite}" class="favorite-badge">
+            <i class="bi bi-star-fill"></i> 已收藏
+        </div>
+    </div>
+    
+    <!-- 联系方式 -->
+    <div class="info-card">
+        <div class="info-card-title">
+            <i class="bi bi-telephone"></i> 联系方式
+        </div>
+        
+        <div th:if="${#lists.isEmpty(contact.contactMethods)}" class="text-center text-muted py-4">
+            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+            <p class="mt-2 mb-0">暂无联系方式</p>
+        </div>
+        
+        <div th:each="method : ${contact.contactMethods}" class="contact-method-item">
+            <div class="method-icon" 
+                 th:classappend="${method.type.name() == 'PHONE'} ? 'phone' : 
+                                (${method.type.name() == 'EMAIL'} ? 'email' : 
+                                (${method.type.name() == 'ADDRESS'} ? 'address' : 
+                                (${method.type.name() == 'WECHAT'} ? 'wechat' : 
+                                (${method.type.name() == 'QQ'} ? 'qq' : 'social'))))">
+                <i class="bi" th:classappend="${method.type.name() == 'PHONE'} ? 'bi-telephone' : 
+                                             (${method.type.name() == 'EMAIL'} ? 'bi-envelope' : 
+                                             (${method.type.name() == 'ADDRESS'} ? 'bi-geo-alt' : 
+                                             (${method.type.name() == 'WECHAT'} ? 'bi-wechat' : 
+                                             (${method.type.name() == 'QQ'} ? 'bi-chat-dots' : 'bi-globe'))))"></i>
+            </div>
+            <div class="method-content">
+                <div class="method-type" th:text="${method.typeDisplayName}">电话</div>
+                <div class="method-value" th:text="${method.value}">13800138000</div>
+            </div>
+            <span th:if="${method.label}" class="method-label" th:text="${method.label}">工作</span>
+        </div>
+    </div>
+    
+    <!-- 备注 -->
+    <div th:if="${contact.notes}" class="info-card">
+        <div class="info-card-title">
+            <i class="bi bi-sticky"></i> 备注
+        </div>
+        <div class="notes-content" th:text="${contact.notes}">备注内容</div>
+    </div>
+    
+    <!-- 时间信息 -->
+    <div class="info-card">
+        <div class="meta-info">
+            <div>
+                <i class="bi bi-calendar-plus me-1"></i>
+                创建于 <span th:text="${#temporals.format(contact.createdTime, 'yyyy-MM-dd HH:mm')}"></span>
+            </div>
+            <div>
+                <i class="bi bi-calendar-check me-1"></i>
+                更新于 <span th:text="${#temporals.format(contact.updatedTime, 'yyyy-MM-dd HH:mm')}"></span>
             </div>
         </div>
     </div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+        <a th:href="@{/contact/edit/{id}(id=${contact.id})}" class="btn btn-modern btn-primary-modern">
+            <i class="bi bi-pencil me-2"></i> 编辑联系人
+        </a>
+        <form th:action="@{/contact/delete/{id}(id=${contact.id})}" method="post" class="flex-1" style="flex:1;"
+              onsubmit="return confirm('确定要删除这个联系人吗？此操作不可恢复。')">
+            <button type="submit" class="btn btn-modern btn-danger-modern w-100">
+                <i class="bi bi-trash me-2"></i> 删除
+            </button>
+        </form>
+    </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
