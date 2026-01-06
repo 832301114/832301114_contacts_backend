@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'联系人 - ' + ${contact.name}">联系人详情</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-circle"></i>
+                        <span th:text="${contact.name}"></span>
+                        <i th:if="${contact.favorite}" class="bi bi-star-fill text-warning"></i>
+                    </h4>
+                    <div>
+                        <a th:href="@{/contact/edit/{id}(id=${contact.id})}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-pencil"></i> 编辑
+                        </a>
+                        <a th:href="@{/}" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> 返回
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- 基本信息 -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">基本信息</h5>
+                        <div class="row">
+                            <div class="col-md-6" th:if="${contact.company}">
+                                <p><strong>公司：</strong><span th:text="${contact.company}"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>收藏：</strong>
+                                    <span th:if="${contact.favorite}" class="badge bg-warning">已收藏</span>
+                                    <span th:unless="${contact.favorite}" class="badge bg-secondary">未收藏</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div th:if="${contact.notes}">
+                            <p><strong>备注：</strong><span th:text="${contact.notes}"></span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- 联系方式 -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">联系方式</h5>
+                        <div th:if="${#lists.isEmpty(contact.contactMethods)}" class="text-muted">
+                            暂无联系方式
+                        </div>
+                        <table th:unless="${#lists.isEmpty(contact.contactMethods)}" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>类型</th>
+                                    <th>值</th>
+                                    <th>标签</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="method : ${contact.contactMethods}">
+                                    <td>
+                                        <span class="badge bg-info" th:text="${method.typeDisplayName}"></span>
+                                    </td>
+                                    <td th:text="${method.value}"></td>
+                                    <td th:text="${method.label ?: '-'}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 时间信息 -->
+                    <div class="text-muted small">
+                        <p class="mb-1">创建时间：<span th:text="${#temporals.format(contact.createdTime, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+                        <p class="mb-0">更新时间：<span th:text="${#temporals.format(contact.updatedTime, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
