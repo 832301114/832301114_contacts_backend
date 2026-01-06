@@ -21,6 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 联系人控制器
+ * 处理所有与联系人相关的HTTP请求
+ * 包括：列表展示、新增、编辑、删除、收藏、搜索、导入导出等功能
+ * 
+ * @author Team
+ * @version 1.0
+ */
 @Controller
 public class ContactController {
     
@@ -30,17 +38,29 @@ public class ContactController {
     @Autowired
     private ExcelService excelService;
     
-    // 首页 - 联系人列表
+    /**
+     * 首页 - 联系人列表
+     * 支持搜索和筛选收藏联系人
+     * 
+     * @param model 视图模型
+     * @param keyword 搜索关键词（可选）
+     * @param favoritesOnly 是否只显示收藏（可选）
+     * @return 首页视图名称
+     */
     @GetMapping("/")
-    public String index(Model model, @RequestParam(required = false) String keyword,
+    public String index(Model model, 
+                        @RequestParam(required = false) String keyword,
                         @RequestParam(required = false) Boolean favoritesOnly) {
         List<Contact> contacts;
         
         if (Boolean.TRUE.equals(favoritesOnly)) {
+            // 只显示收藏的联系人
             contacts = contactService.getFavoriteContacts();
         } else if (keyword != null && !keyword.trim().isEmpty()) {
+            // 搜索联系人
             contacts = contactService.searchContacts(keyword);
         } else {
+            // 显示所有联系人
             contacts = contactService.getAllContacts();
         }
         
@@ -51,7 +71,12 @@ public class ContactController {
         return "index";
     }
     
-    // 新建联系人页面
+    /**
+     * 新建联系人页面
+     * 
+     * @param model 视图模型
+     * @return 联系人表单视图名称
+     */
     @GetMapping("/contact/new")
     public String newContactForm(Model model) {
         model.addAttribute("contact", new Contact());
@@ -60,7 +85,14 @@ public class ContactController {
         return "contact-form";
     }
     
-    // 编辑联系人页面
+    /**
+     * 编辑联系人页面
+     * 
+     * @param id 联系人ID
+     * @param model 视图模型
+     * @return 联系人表单视图名称
+     * @throws RuntimeException 如果联系人不存在
+     */
     @GetMapping("/contact/edit/{id}")
     public String editContactForm(@PathVariable Long id, Model model) {
         Contact contact = contactService.getContactById(id)
@@ -72,7 +104,16 @@ public class ContactController {
         return "contact-form";
     }
     
-    // 保存联系人
+    /**
+     * 保存联系人（新增或更新）
+     * 
+     * @param contact 联系人对象
+     * @param methodTypes 联系方式类型列表
+     * @param methodValues 联系方式值列表
+     * @param methodLabels 联系方式标签列表
+     * @param redirectAttributes 重定向属性
+     * @return 重定向到首页
+     */
     @PostMapping("/contact/save")
     public String saveContact(@ModelAttribute Contact contact,
                               @RequestParam(value = "methodTypes", required = false) List<String> methodTypes,
@@ -80,6 +121,7 @@ public class ContactController {
                               @RequestParam(value = "methodLabels", required = false) List<String> methodLabels,
                               RedirectAttributes redirectAttributes) {
         
+        // 构建联系方式列表
         List<ContactMethod> methods = new ArrayList<>();
         if (methodTypes != null && methodValues != null) {
             for (int i = 0; i < methodTypes.size(); i++) {
@@ -93,12 +135,12 @@ public class ContactController {
         }
         
         if (contact.getId() == null) {
-            // 新建
+            // 新建联系人
             Contact savedContact = contactService.createContact(contact);
             contactService.saveContactWithMethods(savedContact, methods);
             redirectAttributes.addFlashAttribute("message", "联系人创建成功！");
         } else {
-            // 更新
+            // 更新联系人
             Contact existingContact = contactService.getContactById(contact.getId())
                 .orElseThrow(() -> new RuntimeException("联系人不存在"));
             existingContact.setName(contact.getName());
@@ -112,7 +154,13 @@ public class ContactController {
         return "redirect:/";
     }
     
-    // 切换收藏状态
+    /**
+     * 切换联系人收藏状态
+     * 
+     * @param id 联系人ID
+     * @param redirectAttributes 重定向属性
+     * @return 重定向到首页
+     */
     @PostMapping("/contact/favorite/{id}")
     public String toggleFavorite(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         Contact contact = contactService.toggleFavorite(id);
@@ -121,7 +169,13 @@ public class ContactController {
         return "redirect:/";
     }
     
-    // 删除联系人
+    /**
+     * 删除联系人
+     * 
+     * @param id 联系人ID
+     * @param redirectAttributes 重定向属性
+     * @return 重定向到首页
+     */
     @PostMapping("/contact/delete/{id}")
     public String deleteContact(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         contactService.deleteContact(id);
@@ -129,7 +183,12 @@ public class ContactController {
         return "redirect:/";
     }
     
-    // 导出Excel
+    /**
+     * 导出联系人到Excel文件
+     * 
+     * @return Excel文件响应
+     * @throws IOException 如果导出失败
+     */
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportExcel() throws IOException {
         byte[] excelData = excelService.exportToExcel();
@@ -142,13 +201,23 @@ public class ContactController {
             .body(excelData);
     }
     
-    // 导入Excel页面
+    /**
+     * 导入页面
+     * 
+     * @return 导入页面视图名称
+     */
     @GetMapping("/import")
     public String importPage() {
         return "import";
     }
     
-    // 处理导入
+    /**
+     * 处理Excel文件导入
+     * 
+     * @param file 上传的Excel文件
+     * @param redirectAttributes 重定向属性
+     * @return 重定向到首页或导入页面
+     */
     @PostMapping("/import")
     public String importExcel(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
         if (file.isEmpty()) {
@@ -161,12 +230,20 @@ public class ContactController {
             redirectAttributes.addFlashAttribute("message", "成功导入 " + imported.size() + " 个联系人");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "导入失败: " + e.getMessage());
+            return "redirect:/import";
         }
         
         return "redirect:/";
     }
     
-    // 查看联系人详情
+    /**
+     * 查看联系人详情
+     * 
+     * @param id 联系人ID
+     * @param model 视图模型
+     * @return 联系人详情视图名称
+     * @throws RuntimeException 如果联系人不存在
+     */
     @GetMapping("/contact/{id}")
     public String viewContact(@PathVariable Long id, Model model) {
         Contact contact = contactService.getContactById(id)
